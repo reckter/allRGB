@@ -27,13 +27,7 @@ public abstract class Util {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         String time = sdf.format(new Date());
         System.out.println("[" + time + "][" + module + "][" + title + "]: " + text);
-        try {
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("operations.log", true)));
-            out.println("[" + time + "][" + module + "][" + title + "]: " + text);
-            out.close();
-        } catch (IOException e) {
-            //oh noes!
-        }
+
     }
 
     /**

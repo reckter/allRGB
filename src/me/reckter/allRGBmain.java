@@ -1,5 +1,8 @@
 package me.reckter;
 
+import me.reckter.Generation.Random;
+import me.reckter.Generation.Scale;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mediacenter
@@ -9,6 +12,16 @@ package me.reckter;
  */
 public class allRGBmain {
     public static void main(String[] args) {
-        ImageConvertion imageConvertion = new ImageConvertion();
+        try {
+            Thread.sleep(5 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        Random generation = new Random();
+        generation.render();
+        generation.writePicture();
+        System.exit(0);
+
+        //ImageConvertion imageConvertion = new ImageConvertion();
     }
 }

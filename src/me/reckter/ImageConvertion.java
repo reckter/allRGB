@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mediacenter
@@ -21,37 +23,53 @@ public class ImageConvertion extends JPanel{
     public static final String TITLE = "...Title...";
 
 
-    protected static int START_SIZE_TILE = 16;
-    protected static int SIZE = 4096;
-    protected static float MIN_PROCENT = 0.3f;
+    protected static final short START_SIZE_TILE = 16;
+    protected static final short SIZE = 4096;
+    protected static final float MIN_PROCENT = 0.3f;
 
-    protected static int R = 0;
-    protected static int G = 1;
-    protected static int B = 2;
+    protected static final int R = 0;
+    protected static final int G = 1;
+    protected static final int B = 2;
 
-    protected static int X = 0;
-    protected static int Y = 1;
+    protected static final int X = 0;
+    protected static final int Y = 1;
 
-    private int[][][] pixel;
-    private int[][][] pixelShould;
+    private short[][][] pixel;
+    private short[][][] pixelShould;
     Graphics g;
 
     public ImageConvertion () {
 
-        pixel = new int[SIZE][SIZE][3];
-        pixelShould = new int[SIZE][SIZE][3];
+        try {
+            Thread.sleep(20 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        Thread showThread = new Thread(new showThread());
+        showThread.start();
 
+
+        Util.c_log("getting pixel Integer array");
+        pixelShould = new short[SIZE][SIZE][3];
+
+        readImage();
+
+        pixel = new short[SIZE][SIZE][3];
+
+
+        Util.c_log("getting image resources");
         BufferedImage bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
         g = bi.getGraphics();
 
-        Thread showThread = new Thread(new showThread());
+        Util.c_log("started processing...");
+        processImage();
 
-
-        showThread.start();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        Util.c_log("drawing it.");
+        for(int x = 0; x < SIZE; x++) {
+            for(int y = 0; y < SIZE; y++) {
+                g.setColor(new Color(pixel[x][y][R], pixel[x][y][G], pixel[x][y][B]));
+                g.drawLine(x, y, x, y);
+            }
         }
 
         try {
@@ -70,27 +88,31 @@ public class ImageConvertion extends JPanel{
             img = ImageIO.read(new File("in.png"));
         } catch (IOException e) {
         }
+        int[] result = new int[SIZE * SIZE * 3 + 1];
 
-        int[] result = new int[4];
-        for(int x = 0; x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-                img.getData().getPixel(x, y, result);
-                pixelShould[x][y][R] = result[R + 1];
-                pixelShould[x][y][G] = result[G + 1];
-                pixelShould[x][y][B] = result[B + 1];
+        img.getData().getPixels(0, 0, SIZE, SIZE, result);
+        short k = 0;
+        for(int i = 1; i < SIZE * SIZE; i++) {
+            pixelShould[i % SIZE][(int) ((float) i / (float) SIZE)][R] = (short) result[3 * i + R];
+            pixelShould[i % SIZE][(int) ((float) i / (float) SIZE)][G] = (short) result[3 * i + G];
+            pixelShould[i % SIZE][(int) ((float) i / (float) SIZE)][B] = (short) result[3 * i + B];
+            if((float) i / (float) (SIZE * SIZE) * 100 > k + 10) {
+                k += 10;
+                Util.c_log(k + "%");
             }
         }
 
+        img = null;
         Util.c_log("finished.");
     }
 
 
-    private int[][][] getAllColors() {
-        int[][][] ret = new int[256][256][256];
+    private boolean[][][] getAllColors() {
+        boolean[][][] ret = new boolean[256][256][256];
         for(int i = 0; i < 256; i++) {
             for(int j = 0; j < 256; j++) {
                 for(int k = 0; k < 256; k++) {
-                    ret[i][j][k] = 1;
+                    ret[i][j][k] = false;
                 }
             }
         }
@@ -98,27 +120,33 @@ public class ImageConvertion extends JPanel{
     }
 
     private void randomizePixel() {
-        Util.c_log("started");
-        int r,g,b;
-        boolean foundColor = false;
-        int[][][] allColor = getAllColors();
+        Util.c_log("randomizing Pixel");
+        int random,r,g,b;
+
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+        for(int i = 0; i <= SIZE * SIZE; i++) {
+            colors.add(i);
+        }
+
+        int k = 0;
         for(int x = 0; x < SIZE; x++) {
+            if((float) x / (float) (SIZE) * 100 > k + 10) {
+                k += 10;
+                Util.c_log(k + "%");
+            }
             for(int y = 0; y < SIZE; y++) {
-                foundColor = false;
-                while(!foundColor) {
-                    r = (int) (Math.random() * 255);
-                    g = (int) (Math.random() * 255);
-                    b = (int) (Math.random() * 255);
-                    if(allColor[r][g][b] == 0) {
-                        allColor[r][g][b] = 1;
-                        foundColor = true;
-                        pixel[x][y][0] = r;
-                        pixel[x][y][1] = g;
-                        pixel[x][y][2] = b;
-                    }
-                }
+                random = (int) Math.random() * colors.size();
+                r = colors.get(random) % 256 ;
+                g = (int) (((float) colors.get(random) / 256) % 256);
+                b = (int) ((float) colors.get(random) / (256f * 256f));
+                colors.remove(random);
+
+                pixel[x][y][R] = (short) r;
+                pixel[x][y][G] = (short) g;
+                pixel[x][y][B] = (short) b;
             }
         }
+        Util.c_log("finished.");
     }
 
     private float getDifferences(int x, int y) {
@@ -131,21 +159,20 @@ public class ImageConvertion extends JPanel{
     }
 
 
-    public int[][] getPixelToProcess(int x0, int y0, int size) {
-        int[][] ret = new int[size * size][2];
+    public ArrayList<Integer[]> getPixelToProcess(short x0, short y0, int size) {
+        ArrayList<Integer[]> ret = new ArrayList<Integer[]>();
+
         int numPixelToProxess = 0;
-        for(int x = 0; x < size; x++) {
-            for(int y = 0; y < size; y++) {
+        for(short x = 0; x < size; x++) {
+            for(short y = 0; y < size; y++) {
                 if(getDifferences(x0 + x ,y0 + y) > 0.3f) {
-                    ret[numPixelToProxess][0] = x0 + x;
-                    ret[numPixelToProxess++][1] = y0 + y;
+                    Integer[] integ = new Integer[2];
+                    integ[X] = (x0 + x);
+                    integ[Y] = (y0 + y);
+
+                    ret.add(integ);
                 }
             }
-        }
-
-        if(numPixelToProxess >= ret.length) {
-            ret[++numPixelToProxess][0] = -1;
-            ret[numPixelToProxess][1] = -1;
         }
 
         return ret;
@@ -153,14 +180,14 @@ public class ImageConvertion extends JPanel{
 
     public void processImage(){
         randomizePixel();
-        int currentTileSize = START_SIZE_TILE;
+        short currentTileSize = START_SIZE_TILE;
 
         Util.c_log("started Tile rendering.");
-        while (currentTileSize < SIZE) {
+        while (currentTileSize <= SIZE) {
             Util.c_log("Tilesize: " + currentTileSize);
             for(int x = 0; x < SIZE /currentTileSize; x++) {
                 for(int y = 0; y < SIZE /currentTileSize; y++) {
-                    processImageTile(x * currentTileSize, y * currentTileSize, currentTileSize);
+                    processImageTile((short) (x * currentTileSize), (short) ( y * currentTileSize), currentTileSize);
                 }
             }
 
@@ -168,38 +195,32 @@ public class ImageConvertion extends JPanel{
         }
     }
 
-    public void processImageTile(int x, int y, int size) {
+    public void processImageTile(short x, short y, short size) {
         if(x + size > SIZE) {
-            size = SIZE - x;
+            size = (short) (SIZE - x);
         }
         if(y + size > SIZE) {
-            size = SIZE - y;
+            size = (short) (SIZE - y);
         }
 
-        int[][] processPixel = getPixelToProcess(x, y, size);
+        ArrayList<Integer[]> processPixel = getPixelToProcess(x, y, size);
 
-        for (int i = 0; i < processPixel.length; i++) {
-            if(processPixel[i][0] == -1) {
-                break;
-            }
-            for (int j= 0; j < processPixel.length; j++) {
-                if(processPixel[j][0] == -1) {
-                    break;
-                }
-                if(  getSwitchedDifferences(processPixel[i][0], processPixel[i][1],processPixel[j][0], processPixel[j][1]) < getDifferences(processPixel[i][0],processPixel[i][1])
-                  && getSwitchedDifferences(processPixel[j][0], processPixel[j][1],processPixel[i][0], processPixel[i][1]) < getDifferences(processPixel[j][0],processPixel[j][1])
-                   ) { //TODO more switch cases (?)
-                    int r = pixel[processPixel[i][X]][processPixel[i][Y]][R];
-                    int g = pixel[processPixel[i][X]][processPixel[i][Y]][G];
-                    int b = pixel[processPixel[i][X]][processPixel[i][Y]][B];
+        for(Integer[] aPixel: processPixel) {
+            for (Integer[] bPixel: processPixel) {
+                if(  getSwitchedDifferences(aPixel[X], aPixel[Y], bPixel[X], bPixel[Y]) < getDifferences(aPixel[X], aPixel[Y])
+                  && getSwitchedDifferences(bPixel[X], bPixel[Y], aPixel[X], aPixel[Y]) < getDifferences(bPixel[X], bPixel[Y])
+                     ) { //TODO more switch cases (?)
+                    short r = pixel[aPixel[X]][aPixel[Y]][R];
+                    short g = pixel[aPixel[X]][aPixel[Y]][G];
+                    short b = pixel[aPixel[X]][aPixel[Y]][B];
 
-                    pixel[processPixel[i][X]][processPixel[i][Y]][R] = pixel[processPixel[j][X]][processPixel[j][Y]][R];
-                    pixel[processPixel[i][X]][processPixel[i][Y]][G] = pixel[processPixel[j][X]][processPixel[j][Y]][G];
-                    pixel[processPixel[i][X]][processPixel[i][Y]][B] = pixel[processPixel[j][X]][processPixel[j][Y]][B];
+                    pixel[aPixel[X]][aPixel[Y]][R] = pixel[bPixel[X]][bPixel[Y]][R];
+                    pixel[aPixel[X]][aPixel[Y]][G] = pixel[bPixel[X]][bPixel[Y]][G];
+                    pixel[aPixel[X]][aPixel[Y]][B] = pixel[bPixel[X]][bPixel[Y]][B];
 
-                    pixel[processPixel[j][X]][processPixel[j][Y]][R] = r;
-                    pixel[processPixel[j][X]][processPixel[j][Y]][G] = g;
-                    pixel[processPixel[j][X]][processPixel[j][Y]][B] = b;
+                    pixel[bPixel[X]][bPixel[Y]][R] = r;
+                    pixel[bPixel[X]][bPixel[Y]][G] = g;
+                    pixel[bPixel[X]][bPixel[Y]][B] = b;
                 }
             }
         }
@@ -210,11 +231,12 @@ public class ImageConvertion extends JPanel{
         @Override
 
         public void run() {
+            Util.c_log("started showThread");
             JFrame frame = new JFrame(TITLE);
            // frame.setContentPane(new SwingTemplateJPanel());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();             // "this" JFrame packs its components
-            frame.setLocationRelativeTo(null); // center the application window
+           // frame.setLocationRelativeTo(null); // center the application window
             frame.setSize(CANVAS_HEIGHT,CANVAS_WIDTH);
             frame.setVisible(true);
         }
