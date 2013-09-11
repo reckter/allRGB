@@ -1,62 +1,40 @@
-package me.reckter;
+package me.reckter.Generation.Utilities;
 
-import me.reckter.Generation.*;
-import me.reckter.Generation.Mandelbrot;
-import org.jocl.cl_context;
-import org.jocl.cl_context_properties;
-import org.jocl.cl_platform_id;
-
+import me.reckter.Generation.BasicGeneration;
+import me.reckter.Util;
+import me.reckter.linkesList.FastLinkedList;
 import org.jocl.*;
 
 import static org.jocl.CL.*;
 
 /**
  * Created with IntelliJ IDEA.
- * User: mediacenter
- * Date: 09.07.13
- * Time: 14:07
+ * User: reckter
+ * Date: 8/26/13
+ * Time: 3:12 PM
  * To change this template use File | Settings | File Templates.
  */
-public class allRGBmain {
-    public static void main(String[] args) {
+public abstract class RGB_util {
 
-        long time = System.currentTimeMillis();
-        Util.c_log("startup");
-        BasicGeneration generation = new BackAndForth();
-        Util.c_log("using "+ generation.getClass().getCanonicalName());
-        generation.render();
-        generation.writePicture();
-        Util.c_log("it took " + ((System.currentTimeMillis() - time) / 1000) + "s to compute this image");
-        System.exit(0);
-    }
+    public static float[] CalculateByGPU(String programm, float srcArrayA[], float srcArrayB[]) {
 
 
-    public static void testJOCL() {
+        int n = srcArrayA.length;
 
-
-        String programSource =
-                "__kernel void "+
-                        "sampleKernel(__global const float *a,"+
-                        "             __global const float *b,"+
-                        "             __global float *c)"+
-                        "{"+
-                        "    int gid = get_global_id(0);"+
-                        "    c[gid] = a[gid] * b[gid];"+
-                        "}";
-
-        // Create input- and output data
-        int n = 1000;
-        float srcArrayA[] = new float[n];
-        float srcArrayB[] = new float[n];
-        float dstArray[] = new float[n];
-        for (int i=0; i<n; i++)
-        {
-            srcArrayA[i] = i;
-            srcArrayB[i] = i;
+        if(n != srcArrayB.length) {
+            Util.c_log("Size of Arrays didn't match!");
+            throw new IllegalArgumentException();
         }
+
+        Util.c_log("preparing the data for the GPU...");
+
+        float dstArray[] = new float[n];
+
         Pointer srcA = Pointer.to(srcArrayA);
         Pointer srcB = Pointer.to(srcArrayB);
         Pointer dst = Pointer.to(dstArray);
+
+        Util.c_log("setting up OpenCL stuff");
 
         // The platform, device type and device number
         // that will be used
@@ -112,9 +90,11 @@ public class allRGBmain {
                 CL_MEM_READ_WRITE,
                 Sizeof.cl_float * n, null, null);
 
+        Util.c_log("compiling...");
+
         // Create the program from the source code
         cl_program program = clCreateProgramWithSource(context,
-                1, new String[]{ programSource }, null, null);
+                1, new String[]{ programm }, null, null);
 
         // Build the program
         clBuildProgram(program, 0, null, null, null, null);
@@ -134,14 +114,23 @@ public class allRGBmain {
         long global_work_size[] = new long[]{n};
         long local_work_size[] = new long[]{1};
 
+
+        Util.c_log("executing...");
+
+
         // Execute the kernel
         clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
                 global_work_size, local_work_size, 0, null, null);
+
+        Util.c_log("fetching output...");
 
         // Read the output data
         clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
                 n * Sizeof.cl_float, dst, 0, null, null);
 
+
+
+        Util.c_log("cleaning up.");
         // Release kernel, program, and memory objects
         clReleaseMemObject(memObjects[0]);
         clReleaseMemObject(memObjects[1]);
@@ -152,6 +141,63 @@ public class allRGBmain {
         clReleaseContext(context);
 
 
-        System.out.println("Result: "+java.util.Arrays.toString(dstArray));
+        return dstArray;
+
+    }
+
+
+    public static void randomizePixel(short[][][] pixel) {
+        Util.c_log("randomizing Pixel...");
+        FastLinkedList colors = new FastLinkedList();
+        for(Integer i = 0; i < BasicGeneration.SIZE * BasicGeneration.SIZE; i++) {
+            colors.add(i);
+        }
+
+        int random, tmp,k = 0;
+        boolean isUsed;
+
+        for(int x = 0;x < BasicGeneration.SIZE; x++) {
+            if(k < 70) {
+                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 10) {
+                    k += 10;
+                    Util.c_log(k + "% cleaning up colors");
+                    colors.cleanUp();
+                }
+            } else if(k < 90){
+                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 5) {
+                    k += 5;
+                    Util.c_log(k + "% cleaning up colors");
+                    colors.cleanUp();
+                }
+            } else {
+                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 1) {
+                    k += 1;
+                    Util.c_log(k + "% cleaning up colors");
+                    colors.cleanUp();
+                }
+            }
+
+
+            for(int y = 0; y < BasicGeneration.SIZE; y++) {
+                if(y % 100 == 0) {
+                    //      Util.c_log("(" + x + "|" + y + ")");
+                }
+                isUsed = true;
+                while(isUsed){
+                    random = (int) (Math.random() * colors.size());
+                    isUsed = false;
+                    try {
+                        tmp = colors.get(random).getValue();
+                        pixel[x][y][BasicGeneration.R] = (short) ((tmp) % 256);
+                        pixel[x][y][BasicGeneration.G] = (short) (((tmp) / 256) % 256);
+                        pixel[x][y][BasicGeneration.B] = (short) (((tmp) / 256 / 256));
+                        colors.delete(random);
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        isUsed = true;
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,51 +1,41 @@
-package me.reckter;
-
-import me.reckter.Generation.*;
-import me.reckter.Generation.Mandelbrot;
-import org.jocl.cl_context;
-import org.jocl.cl_context_properties;
-import org.jocl.cl_platform_id;
-
-import org.jocl.*;
+/*
+ * JOCL - Java bindings for OpenCL
+ * 
+ * Copyright 2009 Marco Hutter - http://www.jocl.org/
+ */
 
 import static org.jocl.CL.*;
 
+import org.jocl.*;
+
 /**
- * Created with IntelliJ IDEA.
- * User: mediacenter
- * Date: 09.07.13
- * Time: 14:07
- * To change this template use File | Settings | File Templates.
+ * A small JOCL sample.
  */
-public class allRGBmain {
-    public static void main(String[] args) {
+public class JOCLSample
+{
+    /**
+     * The source code of the OpenCL program to execute
+     */
+    private static String programSource =
+        "__kernel void "+
+        "sampleKernel(__global const float *a,"+
+        "             __global const float *b,"+
+        "             __global float *c)"+
+        "{"+
+        "    int gid = get_global_id(0);"+
+        "    c[gid] = a[gid] * b[gid];"+
+        "}";
+    
 
-        long time = System.currentTimeMillis();
-        Util.c_log("startup");
-        BasicGeneration generation = new BackAndForth();
-        Util.c_log("using "+ generation.getClass().getCanonicalName());
-        generation.render();
-        generation.writePicture();
-        Util.c_log("it took " + ((System.currentTimeMillis() - time) / 1000) + "s to compute this image");
-        System.exit(0);
-    }
-
-
-    public static void testJOCL() {
-
-
-        String programSource =
-                "__kernel void "+
-                        "sampleKernel(__global const float *a,"+
-                        "             __global const float *b,"+
-                        "             __global float *c)"+
-                        "{"+
-                        "    int gid = get_global_id(0);"+
-                        "    c[gid] = a[gid] * b[gid];"+
-                        "}";
-
-        // Create input- and output data
-        int n = 1000;
+    /**
+     * The entry point of this sample
+     * 
+     * @param args Not used
+     */
+    public static void main(String args[])
+    {
+        // Create input- and output data 
+        int n = 10;
         float srcArrayA[] = new float[n];
         float srcArrayB[] = new float[n];
         float dstArray[] = new float[n];
@@ -80,68 +70,68 @@ public class allRGBmain {
         // Initialize the context properties
         cl_context_properties contextProperties = new cl_context_properties();
         contextProperties.addProperty(CL_CONTEXT_PLATFORM, platform);
-
+        
         // Obtain the number of devices for the platform
         int numDevicesArray[] = new int[1];
         clGetDeviceIDs(platform, deviceType, 0, null, numDevicesArray);
         int numDevices = numDevicesArray[0];
-
-        // Obtain a device ID
+        
+        // Obtain a device ID 
         cl_device_id devices[] = new cl_device_id[numDevices];
         clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
         cl_device_id device = devices[deviceIndex];
 
         // Create a context for the selected device
         cl_context context = clCreateContext(
-                contextProperties, 1, new cl_device_id[]{device},
-                null, null, null);
-
+            contextProperties, 1, new cl_device_id[]{device}, 
+            null, null, null);
+        
         // Create a command-queue for the selected device
-        cl_command_queue commandQueue =
-                clCreateCommandQueue(context, device, 0, null);
+        cl_command_queue commandQueue = 
+            clCreateCommandQueue(context, device, 0, null);
 
         // Allocate the memory objects for the input- and output data
         cl_mem memObjects[] = new cl_mem[3];
-        memObjects[0] = clCreateBuffer(context,
-                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                Sizeof.cl_float * n, srcA, null);
-        memObjects[1] = clCreateBuffer(context,
-                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                Sizeof.cl_float * n, srcB, null);
-        memObjects[2] = clCreateBuffer(context,
-                CL_MEM_READ_WRITE,
-                Sizeof.cl_float * n, null, null);
-
+        memObjects[0] = clCreateBuffer(context, 
+            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+            Sizeof.cl_float * n, srcA, null);
+        memObjects[1] = clCreateBuffer(context, 
+            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+            Sizeof.cl_float * n, srcB, null);
+        memObjects[2] = clCreateBuffer(context, 
+            CL_MEM_READ_WRITE, 
+            Sizeof.cl_float * n, null, null);
+        
         // Create the program from the source code
         cl_program program = clCreateProgramWithSource(context,
-                1, new String[]{ programSource }, null, null);
-
+            1, new String[]{ programSource }, null, null);
+        
         // Build the program
         clBuildProgram(program, 0, null, null, null, null);
-
+        
         // Create the kernel
         cl_kernel kernel = clCreateKernel(program, "sampleKernel", null);
-
+        
         // Set the arguments for the kernel
-        clSetKernelArg(kernel, 0,
-                Sizeof.cl_mem, Pointer.to(memObjects[0]));
-        clSetKernelArg(kernel, 1,
-                Sizeof.cl_mem, Pointer.to(memObjects[1]));
-        clSetKernelArg(kernel, 2,
-                Sizeof.cl_mem, Pointer.to(memObjects[2]));
-
+        clSetKernelArg(kernel, 0, 
+            Sizeof.cl_mem, Pointer.to(memObjects[0]));
+        clSetKernelArg(kernel, 1, 
+            Sizeof.cl_mem, Pointer.to(memObjects[1]));
+        clSetKernelArg(kernel, 2, 
+            Sizeof.cl_mem, Pointer.to(memObjects[2]));
+        
         // Set the work-item dimensions
         long global_work_size[] = new long[]{n};
         long local_work_size[] = new long[]{1};
-
+        
         // Execute the kernel
         clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
-                global_work_size, local_work_size, 0, null, null);
-
+            global_work_size, local_work_size, 0, null, null);
+        
         // Read the output data
         clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
-                n * Sizeof.cl_float, dst, 0, null, null);
-
+            n * Sizeof.cl_float, dst, 0, null, null);
+        
         // Release kernel, program, and memory objects
         clReleaseMemObject(memObjects[0]);
         clReleaseMemObject(memObjects[1]);
@@ -150,8 +140,25 @@ public class allRGBmain {
         clReleaseProgram(program);
         clReleaseCommandQueue(commandQueue);
         clReleaseContext(context);
-
-
-        System.out.println("Result: "+java.util.Arrays.toString(dstArray));
+        
+        // Verify the result
+        boolean passed = true;
+        final float epsilon = 1e-7f;
+        for (int i=0; i<n; i++)
+        {
+            float x = dstArray[i];
+            float y = srcArrayA[i] * srcArrayB[i];
+            boolean epsilonEqual = Math.abs(x - y) <= epsilon * Math.abs(x);
+            if (!epsilonEqual)
+            {
+                passed = false;
+                break;
+            }
+        }
+        System.out.println("Mandelbrot "+(passed?"PASSED":"FAILED"));
+        if (n <= 10)
+        {
+            System.out.println("Result: "+java.util.Arrays.toString(dstArray));
+        }
     }
 }

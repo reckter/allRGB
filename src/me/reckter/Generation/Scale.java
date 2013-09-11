@@ -11,10 +11,6 @@ import me.reckter.Generation.BasicGeneration;
  */
 public class Scale extends BasicGeneration {
 
-    public Scale() {
-        super();
-    }
-
     @Override
     public void render() {
         for(int xTile = 0; xTile < 4096; xTile += 256) {
