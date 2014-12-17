@@ -22,7 +22,7 @@ public abstract class BasicGeneration {
 
     public static final int SIZE = 4096;
 
-    public static final int CANVAS_SIZE = 1024;
+    public static final int CANVAS_SIZE = 512;
     public static final int FACTOR = SIZE / CANVAS_SIZE;
 
 
@@ -166,8 +166,8 @@ public abstract class BasicGeneration {
                         b /= FACTOR * FACTOR;
 
                         if(r < 256 && r >= 0 && g < 256 && g >= 0 && b < 256 && b >= 0){
-                            graphics.setColor(new Color(r , g, b ));
-                            graphics.drawLine(x,y,x,y);
+                            graphics.setColor(new Color(r, g, b ));
+                            graphics.drawLine(x, y, x, y);
                         } else {
                             Util.c_log("The pixel (" + x + "|" + y + ") is wrong: " + r + "," + g + "," + b);
                         }

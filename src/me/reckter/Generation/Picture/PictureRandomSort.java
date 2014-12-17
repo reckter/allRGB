@@ -21,14 +21,20 @@ public class PictureRandomSort extends BasicPicture {
 
     @Override
     public void render(){
+
         randomizePixel();
         Util.c_log("repainting image");
 
-        int k = 0;
-        for(int i = 0; i < SIZE; i++) {
 
-            Util.c_log( (((float) i / (float)SIZE) * 100f) + "%: " + calculateFittnes());
-           for(int j = 0; j < SIZE; j++) {
+        long startTime = System.currentTimeMillis();
+        int k = 0;
+
+        int maxIter = 10;
+        for(int i = 0; i < maxIter; i++) {
+            float percent =  (((float) i / (float)maxIter) * 100f);
+
+            Util.c_log( percent+ "%(ETA: " + ((startTime + (((System.currentTimeMillis() - startTime) / percent) * 100f)) - System.currentTimeMillis()) / 1000f + "s) : " + calculateFittnes());
+            for(int j = 0; j < SIZE; j++) {
 
                Stream.iterate(0, n -> n + 1).limit(SIZE).parallel().map(ignored -> {
                    int x1 = random.nextInt(SIZE);
@@ -84,18 +90,18 @@ public class PictureRandomSort extends BasicPicture {
                 pixel[x][y][G] = (byte) g;
                 pixel[x][y][B] = (byte) b;
 
-                r++;
-                if(r == 256) {
+                r += 4096 / SIZE;
+                if(r >= 256) {
                     r = 0;
-                    g++;
-                    if(g == 256){
+                    g += 4096 / SIZE;
+                    if(g >= 256){
                         g = 0;
-                        b++;
+                        b += 4096 / SIZE;
                     }
                 }
             }
         }
-        /*
+
         for(int x = SIZE - 1; x >= 0; x--) {
             for(int y = SIZE - 1; y >= 0; y--) {
                 int x2 = random.nextInt(x + 1);
@@ -117,7 +123,7 @@ public class PictureRandomSort extends BasicPicture {
                 pixel[x2][y2][B] = tmpB;
             }
         }
-        */
+
         Util.c_log("finished.");
     }
 
@@ -130,7 +136,7 @@ public class PictureRandomSort extends BasicPicture {
      * @return
      */
     protected boolean isChangedBetter(int x1, int y1, int x2, int y2) {
-        if( (getDifferences(x1, y1) - getSwitchedDifferences(x2, y2, x1, y1))  +  (getDifferences(x2, y2) - getSwitchedDifferences(x1, y1, x2, y2)) > SWITCH_PIXEL_BARRIER ){
+        if((getDifferences(x1, y1) - getSwitchedDifferences(x2, y2, x1, y1))  +  (getDifferences(x2, y2) - getSwitchedDifferences(x1, y1, x2, y2)) > SWITCH_PIXEL_BARRIER ){
             return true;
         }
         return false;
