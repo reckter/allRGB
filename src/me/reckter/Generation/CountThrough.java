@@ -15,9 +15,9 @@ public class CountThrough extends BasicGeneration {
     public void render() {
         for(int x = 0; x < SIZE; x++) {
             for(int y = 0; y < SIZE; y++) {
-                pixel[x][y][R] = (short) (((x * SIZE) + y) % 256);
-                pixel[x][y][G] = (short) ((((x * SIZE) + y) / 256) % 256);
-                pixel[x][y][B] = (short) ((((x * SIZE) + y) / 256 / 256));
+                pixel[x][y][R] = (byte) (((x * SIZE) + y) % 256);
+                pixel[x][y][G] = (byte) ((((x * SIZE) + y) / 256) % 256);
+                pixel[x][y][B] = (byte) ((((x * SIZE) + y) / 256 / 256));
             }
         }
     }

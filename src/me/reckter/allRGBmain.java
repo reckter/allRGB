@@ -1,11 +1,7 @@
 package me.reckter;
 
-import me.reckter.Generation.*;
-import me.reckter.Generation.Mandelbrot;
-import org.jocl.cl_context;
-import org.jocl.cl_context_properties;
-import org.jocl.cl_platform_id;
-
+import me.reckter.Generation.BasicGeneration;
+import me.reckter.Generation.Picture.PictureRandomSort;
 import org.jocl.*;
 
 import static org.jocl.CL.*;
@@ -20,11 +16,15 @@ import static org.jocl.CL.*;
 public class allRGBmain {
     public static void main(String[] args) {
 
+        Log.setConsoleLevel(Log.LogLevel.DEBUG);
+        Util.printMemory();
         long time = System.currentTimeMillis();
         Util.c_log("startup");
-        BasicGeneration generation = new BackAndForth();
+        BasicGeneration generation = new PictureRandomSort("original.jpg");
+        Util.printMemory();
         Util.c_log("using "+ generation.getClass().getCanonicalName());
         generation.render();
+        Util.printMemory();
         generation.writePicture();
         Util.c_log("it took " + ((System.currentTimeMillis() - time) / 1000) + "s to compute this image");
         System.exit(0);

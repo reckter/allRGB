@@ -20,6 +20,11 @@ public class Pixel implements Comparable<Pixel>{
     public int gShould;
     public int bShould;
 
+    public Pixel(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public Pixel(int r, int b, int g,int rShould, int bShould, int gShould) {
         this.r = r;
         this.g = g;

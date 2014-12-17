@@ -1,14 +1,6 @@
 package me.reckter;
 
 import java.text.SimpleDateFormat;
-
-
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
@@ -27,6 +19,19 @@ public abstract class Util {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         String time = sdf.format(new Date());
         System.out.println("[" + time + "][" + module + "][" + title + "]: " + text);
+
+    }
+
+    public static void printMemory() {
+        Runtime rt = Runtime.getRuntime();
+        long totalMem = rt.totalMemory();
+        long maxMem = rt.maxMemory();
+        long freeMem = rt.freeMemory();
+        double megs = 1048576.0;
+
+        Util.c_log("Total Memory: " + totalMem + " (" + (totalMem/megs) + " MiB)");
+        Util.c_log("Max Memory:   " + maxMem + " (" + (maxMem/megs) + " MiB)");
+        Util.c_log("Free Memory:  " + freeMem + " (" + (freeMem/megs) + " MiB)");
 
     }
 

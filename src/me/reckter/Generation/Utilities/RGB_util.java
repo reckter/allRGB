@@ -2,7 +2,6 @@ package me.reckter.Generation.Utilities;
 
 import me.reckter.Generation.BasicGeneration;
 import me.reckter.Util;
-import me.reckter.linkesList.FastLinkedList;
 import org.jocl.*;
 
 import static org.jocl.CL.*;
@@ -146,7 +145,36 @@ public abstract class RGB_util {
     }
 
 
-    public static void randomizePixel(short[][][] pixel) {
+    public static void randomizePixel(byte[][][] pixel) {
+		    Util.c_log("randomizing Pixel");
+
+		    boolean[][] colors = new boolean[BasicGeneration.SIZE][BasicGeneration.SIZE];
+		    int x,y;
+		    int k = 0;
+		    byte r,g,b;
+		    for( r = 0; r < 256; r++) {
+			    if((float) r / 256f * 100 > k + 10) {
+				    k += 10;
+				    Util.c_log(k + "%");
+			    }
+			    for( g = 0; g < 256; g++) {
+				    for( b = 0; b < 256; b++) {
+					    x = (int) ( Math.random() * BasicGeneration.SIZE);
+					    y = (int) ( Math.random() * BasicGeneration.SIZE);
+					    while(colors[x][y]){
+						    x = (int) ( Math.random() * BasicGeneration.SIZE);
+						    y = (int) ( Math.random() * BasicGeneration.SIZE);
+					    }
+					    colors[x][y] = true;
+					    pixel[x][y][BasicGeneration.R] = r;
+					    pixel[x][y][BasicGeneration.G] = g;
+					    pixel[x][y][BasicGeneration.B] = b;
+				    }
+			    }
+		    }
+		    Util.c_log("finished.");
+
+	    /*
         Util.c_log("randomizing Pixel...");
         FastLinkedList colors = new FastLinkedList();
         for(Integer i = 0; i < BasicGeneration.SIZE * BasicGeneration.SIZE; i++) {
@@ -199,5 +227,7 @@ public abstract class RGB_util {
                 }
             }
         }
+
+        */
     }
 }

@@ -19,9 +19,9 @@ public class Scale extends BasicGeneration {
                     for(int yMiniTile = 0; yMiniTile < 256; yMiniTile += 4) {
                         for(int x = 0; x < 4; x++) {
                             for(int y = 0; y < 4; y++) {
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][R] = (short)( (xMiniTile / 4) + x * 32);
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][G] = (short)( (yMiniTile / 4) + y * 32);
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][B] = (short)( (xTile / 256) + (yTile / 256) * 16) ;
+                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][R] = (byte)( (xMiniTile / 4) + x * 32);
+                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][G] = (byte)( (yMiniTile / 4) + y * 32);
+                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][B] = (byte)( (xTile / 256) + (yTile / 256) * 16) ;
                             }
                         }
                     }

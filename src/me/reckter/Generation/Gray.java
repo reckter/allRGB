@@ -2,8 +2,6 @@ package me.reckter.Generation;
 
 import me.reckter.Util;
 
-import java.lang.reflect.Array;
-
 /**
  * Created with IntelliJ IDEA.
  * User: reckter
@@ -13,9 +11,9 @@ import java.lang.reflect.Array;
  */
 public class Gray extends BasicGeneration {
 
-    private short[] to_gray(int base, int digits, int value)
+    public static byte[] to_gray(int base, int digits, int value)
     {
-        short[] gray = new short[digits];
+        byte[] gray = new byte[digits];
         short[] baseN = new short[digits]; // Stores the ordinary base-N number, one digit per entry
         short i;             // The loop variable
 
@@ -32,7 +30,7 @@ public class Gray extends BasicGeneration {
         while (i-- > 0) {
             // The gray digit gets shifted down by the sum of the higher
             // digits.
-            gray[i] = (short) ((baseN[i] + shift) % base);
+            gray[i] = (byte) ((baseN[i] + shift) % base);
             shift += base - gray[i]; // Subtract from base so shift is positive
         }
         return gray;
@@ -44,7 +42,7 @@ public class Gray extends BasicGeneration {
 
 
         for(int i = 0; i <= 999; i++) {
-            short[] res = to_gray(255,3,i);
+            byte[] res = to_gray(255, 3, i);
             Util.c_log(i +": " + java.util.Arrays.toString(res));
         }
 

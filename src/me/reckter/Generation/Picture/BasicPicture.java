@@ -1,11 +1,11 @@
-package me.reckter.Generation;
+package me.reckter.Generation.Picture;
 
+import me.reckter.Generation.BasicGeneration;
 import me.reckter.Util;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 
@@ -18,7 +18,9 @@ import java.io.IOException;
  */
 public class BasicPicture extends BasicGeneration {
 
-    protected short[][][] pixelShould;
+    protected byte[][][] pixelShould;
+    protected int height;
+    protected int width;
 
 
     public BasicPicture(String file) {
@@ -36,16 +38,24 @@ public class BasicPicture extends BasicGeneration {
             Util.c_log("ERROR: " + e.toString());
         }
 
-        pixelShould = new short[img.getHeight()][img.getWidth()][3];
-        int[] result = new int[img.getHeight() * img.getWidth() * 3 + 1];
+        height = img.getHeight();
+        width = img.getWidth();
 
-        img.getData().getPixels(0, 0, img.getHeight(), img.getWidth(), result);
+
+        pixelShould = new byte[height][width][3];
+        int[] result = new int[height * width * 3 + 1];
+
+       // img.getData().getPixels(0, 0, height, width, result);
+        DataBuffer buffer = img.getData().getDataBuffer();
         short k = 0;
-        for(int i = 1; i < img.getHeight() * SIZE; i++) {
-            pixelShould[i % img.getHeight()][(int) ((float) i / (float) img.getHeight())][R] = (short) result[3 * i + R];
-            pixelShould[i % img.getHeight()][(int) ((float) i / (float) img.getHeight())][G] = (short) result[3 * i + G];
-            pixelShould[i % img.getHeight()][(int) ((float) i / (float) img.getHeight())][B] = (short) result[3 * i + B];
-            if((float) i / (float) (img.getHeight() * img.getWidth()) * 100 > k + 10) {
+
+        for(int i = 0; i < height * width; i++) {
+            pixelShould[i % height][(int) ((float) i / (float) height)][R] = (byte) buffer.getElem(3 * i + R);
+            pixelShould[i % height][(int) ((float) i / (float) height)][G] = (byte) buffer.getElem(3 * i + G);
+            pixelShould[i % height][(int) ((float) i / (float) height)][B] = (byte) buffer.getElem(3 * i + B);
+            //Log.debug("reading pixel: (" + i % height + "|" + (int) ((float) i / (float) height) + "): [" + buffer.getElem(3 * i + R) + "|" + buffer.getElem(3 * i + G) + "|" + buffer.getElem(3 * i + B) + "]");
+
+            if((float) i / (float) (height * width) * 100 > k + 10) {
                 k += 10;
                 Util.c_log(k + "%");
             }

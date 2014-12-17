@@ -231,7 +231,7 @@ public class ImageConvertion extends JPanel{
         @Override
 
         public void run() {
-            Util.c_log("started showThread");
+            Util.c_log("started ShowThread");
             JFrame frame = new JFrame(TITLE);
            // frame.setContentPane(new SwingTemplateJPanel());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

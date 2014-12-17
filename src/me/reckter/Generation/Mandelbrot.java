@@ -75,9 +75,9 @@ public class Mandelbrot extends BasicGeneration{
 
             Color color = Color.getHSBColor((float) (iter / max_iter), saturation, saturation);
 
-            pixel[x][y][R] = (short) color.getRed();
-            pixel[x][y][G] = (short) color.getGreen();
-            pixel[x][y][B] = (short) color.getBlue();
+            pixel[x][y][R] = (byte) color.getRed();
+            pixel[x][y][G] = (byte) color.getGreen();
+            pixel[x][y][B] = (byte) color.getBlue();
         }
     }
 }

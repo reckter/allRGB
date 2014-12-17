@@ -22,9 +22,9 @@ public class RandomColum extends BasicGeneration{
                     random = (int) (Math.random() * SIZE);
                 }
                 color[x * SIZE + random] = true;
-                pixel[x][y][R] = (short) ((x * SIZE + random) % 256);
-                pixel[x][y][G] = (short) (((x * SIZE + random) / 256) % 256);
-                pixel[x][y][B] = (short) (((x * SIZE + random) / 256 / 256));
+                pixel[x][y][R] = (byte) ((x * SIZE + random) % 256);
+                pixel[x][y][G] = (byte) (((x * SIZE + random) / 256) % 256);
+                pixel[x][y][B] = (byte) (((x * SIZE + random) / 256 / 256));
             }
         }
     }

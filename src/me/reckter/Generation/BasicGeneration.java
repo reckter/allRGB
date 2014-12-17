@@ -1,5 +1,6 @@
 package me.reckter.Generation;
 
+import me.reckter.Log;
 import me.reckter.Util;
 
 import javax.imageio.ImageIO;
@@ -7,8 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -18,7 +18,7 @@ import java.util.Scanner;
  * Time: 16:10
  * To change this template use File | Settings | File Templates.
  */
-public class BasicGeneration {
+public abstract class BasicGeneration {
 
     public static final int SIZE = 4096;
 
@@ -39,36 +39,44 @@ public class BasicGeneration {
     private BufferedImage bi;
     private Graphics graphics;
 
-    protected LinkedList<Integer[]> pixelToDraw;
+    public static Random random = new Random();
 
-    protected short[][][] pixel;
+    protected byte[][][] pixel;
 
 
     public BasicGeneration() {
-        pixel = new short[SIZE][SIZE][3];
+        Log.info("allocationg RAM...");
+        pixel = new byte[SIZE][SIZE][3];
+        Log.info("done");
 
-        pixelToDraw = new LinkedList<Integer[]>();
-
-        showThread = new Thread(new showThread());
+        showThread = new Thread(new ShowThread());
         showThread.start();
 
 	    Util.c_log("init from BasicGeneration done.");
     }
 
 
-    public void render() {
-        //render Stuff here;
-    }
+    abstract public void render();
 
 
     public void writePicture() {
 	    bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
 	    graphics = bi.getGraphics();
 
+        int r,g,b;
         Util.c_log("painting Image");
         for(int x = 0; x < SIZE; x++) {
             for(int y = 0; y < SIZE; y++) {
-                graphics.setColor(new Color(pixel[x][y][R], pixel[x][y][G], pixel[x][y][B]));
+
+                r = pixel[y][x][R];
+                g = pixel[y][x][G];
+                b = pixel[y][x][B];
+
+                r = r >= 0 ? r : 127 - r;
+                g = g >= 0 ? g : 127 - g;
+                b = b >= 0 ? b : 127 - b;
+
+                graphics.setColor(new Color(r, g, b));
                 graphics.drawLine(x, y, x, y);
             }
         }
@@ -103,11 +111,11 @@ public class BasicGeneration {
         Util.c_log("finished.");
     }
 
-    public class showThread extends JPanel implements Runnable{
+    public class ShowThread extends JPanel implements Runnable{
 
 
         public void run() {
-            Util.c_log("started showThread");
+            Util.c_log("started ShowThread");
             JFrame frame = new JFrame("allRGB");
             // frame.setContentPane(new SwingTemplateJPanel());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,6 +132,7 @@ public class BasicGeneration {
             super.paintComponent(graphics);  // paint background
 
             int r,g,b;
+            int rTMP,gTMP,bTMP;
 
             while(true) {
                 try {
@@ -138,9 +147,18 @@ public class BasicGeneration {
                         b = 0;
                         for(int xi = 0; xi < FACTOR; xi++) {
                             for(int yi = 0; yi < FACTOR; yi++) {
-                                r += pixel[x * FACTOR + xi][y * FACTOR + yi][R];
-                                g += pixel[x * FACTOR + xi][y * FACTOR + yi][G];
-                                b += pixel[x * FACTOR + xi][y * FACTOR + yi][B];
+                                rTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][R];
+                                gTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][G];
+                                bTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][B];
+
+
+                                rTMP = rTMP >= 0 ? rTMP : 127 - rTMP;
+                                gTMP = gTMP >= 0 ? gTMP : 127 - gTMP;
+                                bTMP = bTMP >= 0 ? bTMP : 127 - bTMP;
+
+                                r += rTMP;
+                                g += gTMP;
+                                b += bTMP;
                             }
                         }
                         r /= FACTOR * FACTOR;
