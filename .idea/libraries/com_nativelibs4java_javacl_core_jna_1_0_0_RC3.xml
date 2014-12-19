@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="com.nativelibs4java:javacl-core-jna:1.0.0-RC3" type="repository">
+    <properties maven-id="com.nativelibs4java:javacl-core-jna:1.0.0-RC3" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-jna/1.0.0-RC3/javacl-core-jna-1.0.0-RC3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-jna/1.0.0-RC3/opencl4java-jna-1.0.0-RC3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/jnaerator-runtime/0.11/jnaerator-runtime-0.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/ochafik-util/0.11/ochafik-util-0.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/jna-jnaerator/0.11/jna-jnaerator-0.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/dev/jna/jna/3.4.0/jna-3.4.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/nativelibs4java-utils/1.5/nativelibs4java-utils-1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-jna/1.0.0-RC3/javacl-core-jna-1.0.0-RC3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-jna/1.0.0-RC3/javacl-core-jna-1.0.0-RC3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

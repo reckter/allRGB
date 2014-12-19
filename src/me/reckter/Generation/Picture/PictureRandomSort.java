@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 public class PictureRandomSort extends BasicPicture {
     protected static final int SWITCH_PIXEL_BARRIER = 0;
 
+    public static final int SCALE = 4;
+
     public PictureRandomSort(String file) {
         super(file);
     }
@@ -29,11 +31,11 @@ public class PictureRandomSort extends BasicPicture {
         long startTime = System.currentTimeMillis();
         int k = 0;
 
-        int maxIter = 10;
+        int maxIter = SIZE / 2;
         for(int i = 0; i < maxIter; i++) {
             float percent =  (((float) i / (float)maxIter) * 100f);
 
-            Util.c_log( percent+ "%(ETA: " + ((startTime + (((System.currentTimeMillis() - startTime) / percent) * 100f)) - System.currentTimeMillis()) / 1000f + "s) : " + calculateFittnes());
+            Util.c_log( percent+ "%(ETA: " + (((float)(System.currentTimeMillis() - startTime) / percent) * (100f - percent)) / 1000f + "s) : " + calculateFittnes());
             for(int j = 0; j < SIZE; j++) {
 
                Stream.iterate(0, n -> n + 1).limit(SIZE).parallel().map(ignored -> {
@@ -152,6 +154,17 @@ public class PictureRandomSort extends BasicPicture {
         return getSwitchedDifferences(x, y, x, y);
     }
 
+
+
+
+    protected int allign(int i) {
+        while(i % SCALE != 0) {
+            i--;
+        }
+        return i;
+    }
+
+
     /**
      *  returns the diffrence between pixel[x1][y1] and pixelshould[x2][y2]
      * @param x1
@@ -161,9 +174,9 @@ public class PictureRandomSort extends BasicPicture {
      * @return
      */
     protected int getSwitchedDifferences(int x1, int y1, int x2, int y2) {
-        int difr = pixel[x1][y1][R] - pixelShould[x2][y2][R];
-        int difg = pixel[x1][y1][G] - pixelShould[x2][y2][G];
-        int difb = pixel[x1][y1][B] - pixelShould[x2][y2][B];
+        int difr = pixel[x1][y1][R] - pixelShould[allign(x2) / SCALE][allign(y2) / SCALE][R];
+        int difg = pixel[x1][y1][G] - pixelShould[allign(x2) / SCALE][allign(y2) / SCALE][G];
+        int difb = pixel[x1][y1][B] - pixelShould[allign(x2) / SCALE][allign(y2) / SCALE][B];
 
         return difr * difr + difg * difg + difb * difb;
     }

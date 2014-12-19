@@ -17,15 +17,15 @@ public class RandomSorting extends BasicGeneration {
 		RGB_util.randomizePixel(this.pixel);
 		int k = 0;
 
-		int tileSize = 512;
+		int tileSize = 128;
 
 
-		for(int xTile = 0; xTile < 4096; xTile += tileSize) {
+		for(int xTile = 0; xTile < SIZE; xTile += tileSize) {
 			if((float) xTile / (float) (SIZE) * 100 > k + 10) {
 				k += 10;
 				Util.c_log(k + "%");
 			}
-			for(int yTile = 0; yTile < 4096; yTile += tileSize) {
+			for(int yTile = 0; yTile < SIZE; yTile += tileSize) {
 				for(int xMiniTile1 = xTile; xMiniTile1 < xTile + tileSize; xMiniTile1++) {
 					for(int yMiniTile1 = yTile; yMiniTile1 < yTile + tileSize; yMiniTile1++) {
 						for(int xMiniTile2 = xTile; xMiniTile2 < xTile + tileSize - 1; xMiniTile2++) {

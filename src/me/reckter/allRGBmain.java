@@ -1,8 +1,7 @@
 package me.reckter;
 
 import me.reckter.Generation.BasicGeneration;
-import me.reckter.Generation.Picture.PictureRandomSort;
-import me.reckter.Generation.Picture.PictureRandomSortHalf;
+import me.reckter.Generation.Picture.OpenCLSort;
 import org.jocl.*;
 
 import static org.jocl.CL.*;
@@ -21,7 +20,7 @@ public class allRGBmain {
         Util.printMemory();
         long time = System.currentTimeMillis();
         Util.c_log("startup");
-        BasicGeneration generation = new PictureRandomSort("jungle.jpg");
+        BasicGeneration generation = new OpenCLSort("jungle.jpg");
         Util.printMemory();
         Util.c_log("using "+ generation.getClass().getCanonicalName());
         generation.render();

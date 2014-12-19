@@ -22,7 +22,7 @@ public abstract class BasicGeneration {
 
     public static final int SIZE = 4096;
 
-    public static final int CANVAS_SIZE = 512;
+    public static final int CANVAS_SIZE = 1024;
     public static final int FACTOR = SIZE / CANVAS_SIZE;
 
 

@@ -27,7 +27,7 @@ public abstract class RGB_util {
 
         Util.c_log("preparing the data for the GPU...");
 
-        float dstArray[] = new float[n];
+        float dstArray[] = new float[1];
 
         Pointer srcA = Pointer.to(srcArrayA);
         Pointer srcB = Pointer.to(srcArrayB);
@@ -146,88 +146,52 @@ public abstract class RGB_util {
 
 
     public static void randomizePixel(byte[][][] pixel) {
-		    Util.c_log("randomizing Pixel");
-
-		    boolean[][] colors = new boolean[BasicGeneration.SIZE][BasicGeneration.SIZE];
-		    int x,y;
-		    int k = 0;
-		    byte r,g,b;
-		    for( r = 0; r < 256; r++) {
-			    if((float) r / 256f * 100 > k + 10) {
-				    k += 10;
-				    Util.c_log(k + "%");
-			    }
-			    for( g = 0; g < 256; g++) {
-				    for( b = 0; b < 256; b++) {
-					    x = (int) ( Math.random() * BasicGeneration.SIZE);
-					    y = (int) ( Math.random() * BasicGeneration.SIZE);
-					    while(colors[x][y]){
-						    x = (int) ( Math.random() * BasicGeneration.SIZE);
-						    y = (int) ( Math.random() * BasicGeneration.SIZE);
-					    }
-					    colors[x][y] = true;
-					    pixel[x][y][BasicGeneration.R] = r;
-					    pixel[x][y][BasicGeneration.G] = g;
-					    pixel[x][y][BasicGeneration.B] = b;
-				    }
-			    }
-		    }
-		    Util.c_log("finished.");
-
-	    /*
-        Util.c_log("randomizing Pixel...");
-        FastLinkedList colors = new FastLinkedList();
-        for(Integer i = 0; i < BasicGeneration.SIZE * BasicGeneration.SIZE; i++) {
-            colors.add(i);
-        }
-
-        int random, tmp,k = 0;
-        boolean isUsed;
-
-        for(int x = 0;x < BasicGeneration.SIZE; x++) {
-            if(k < 70) {
-                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 10) {
-                    k += 10;
-                    Util.c_log(k + "% cleaning up colors");
-                    colors.cleanUp();
-                }
-            } else if(k < 90){
-                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 5) {
-                    k += 5;
-                    Util.c_log(k + "% cleaning up colors");
-                    colors.cleanUp();
-                }
-            } else {
-                if((float) x / (float) (BasicGeneration.SIZE) * 100 > k + 1) {
-                    k += 1;
-                    Util.c_log(k + "% cleaning up colors");
-                    colors.cleanUp();
-                }
-            }
+        Util.c_log("randomizing Pixel");
+        int r = 0;
+        int g = 0;
+        int b = 0;
 
 
-            for(int y = 0; y < BasicGeneration.SIZE; y++) {
-                if(y % 100 == 0) {
-                    //      Util.c_log("(" + x + "|" + y + ")");
-                }
-                isUsed = true;
-                while(isUsed){
-                    random = (int) (Math.random() * colors.size());
-                    isUsed = false;
-                    try {
-                        tmp = colors.get(random).getValue();
-                        pixel[x][y][BasicGeneration.R] = (short) ((tmp) % 256);
-                        pixel[x][y][BasicGeneration.G] = (short) (((tmp) / 256) % 256);
-                        pixel[x][y][BasicGeneration.B] = (short) (((tmp) / 256 / 256));
-                        colors.delete(random);
-                    }
-                    catch (IndexOutOfBoundsException e) {
-                        isUsed = true;
+        for(int x = 0; x < BasicGeneration.SIZE; x++) {
+            for(int y = 0; y < BasicGeneration.SIZE ; y++) {
+                pixel[x][y][BasicGeneration.R] = (byte) r;
+                pixel[x][y][BasicGeneration.G] = (byte) g;
+                pixel[x][y][BasicGeneration.B] = (byte) b;
+
+                r += 4096 / BasicGeneration.SIZE;
+                if(r >= 256) {
+                    r = 0;
+                    g += 4096 / BasicGeneration.SIZE;
+                    if(g >= 256){
+                        g = 0;
+                        b += 4096 / BasicGeneration.SIZE;
                     }
                 }
             }
         }
 
-        */
+        for(int x = BasicGeneration.SIZE - 1; x >= 0; x--) {
+            for(int y = BasicGeneration.SIZE - 1; y >= 0; y--) {
+                int x2 = BasicGeneration.random.nextInt(x + 1);
+                int y2 = BasicGeneration.random.nextInt(BasicGeneration.SIZE);
+                if(x2 == x) {
+                    y2 = BasicGeneration.random.nextInt(y + 1);
+                }
+
+                byte tmpR = pixel[x][y][BasicGeneration.R];
+                byte tmpG = pixel[x][y][BasicGeneration.G];
+                byte tmpB = pixel[x][y][BasicGeneration.B];
+
+                pixel[x][y][BasicGeneration.R] = pixel[x2][y2][BasicGeneration.R];
+                pixel[x][y][BasicGeneration.G] = pixel[x2][y2][BasicGeneration.G];
+                pixel[x][y][BasicGeneration.B] = pixel[x2][y2][BasicGeneration.B];
+
+                pixel[x2][y2][BasicGeneration.R] = tmpR;
+                pixel[x2][y2][BasicGeneration.G] = tmpG;
+                pixel[x2][y2][BasicGeneration.B] = tmpB;
+            }
+        }
+
+        Util.c_log("finished.");
     }
 }
