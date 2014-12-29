@@ -22,7 +22,7 @@ public abstract class BasicGeneration {
 
     public static final int SIZE = 4096;
 
-    public static final int CANVAS_SIZE = 1024;
+    public static final int CANVAS_SIZE = 512;
     public static final int FACTOR = SIZE / CANVAS_SIZE;
 
 
@@ -42,6 +42,7 @@ public abstract class BasicGeneration {
     public static Random random = new Random();
 
     protected byte[][][] pixel;
+    public boolean isSaving = false;
 
 
     public BasicGeneration() {
@@ -60,6 +61,39 @@ public abstract class BasicGeneration {
 
 
     public void writePicture() {
+        isSaving = true;
+
+        Log.info("checking image");
+
+        int colors[][][] = new int[COLORS][COLORS][COLORS];
+
+        for(int x = 0; x < SIZE; x++) {
+            for(int y = 0; y < SIZE; y++) {
+
+                colors[byteToColor(pixel[y][x][R])][byteToColor(pixel[y][x][G])][byteToColor(pixel[y][x][B])]++;
+            }
+        }
+
+        int errors = 0;
+        StringBuilder errorMessage = new StringBuilder("");
+        for(int r = 0; r < COLORS; r++) {
+            for(int g = 0; g < COLORS; g++) {
+                for(int b = 0; b < COLORS; b++) {
+                    if(colors[r][g][b] != 1 ) {
+                        errors++;
+                        //errorMessage.append("color (").append(r).append(", ").append(g).append( ", ").append(b).append(") exists ").append(colors[r][g][b]).append(" times.\n");
+                    }
+                }
+            }
+        }
+
+        if(errors == 0) {
+            Log.info("picture validated.");
+        } else {
+            Log.info("picture faied: " + errors + " errors");
+            Log.info(errorMessage.toString());
+        }
+
 	    bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
 	    graphics = bi.getGraphics();
 
@@ -109,6 +143,15 @@ public abstract class BasicGeneration {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         Util.c_log("finished.");
+        isSaving = false;
+    }
+
+    private int byteToColor(byte b) {
+        return b >= 0 ? b : 127 - b;
+    }
+
+    public void save() {
+        writePicture();
     }
 
     public class ShowThread extends JPanel implements Runnable{
@@ -123,6 +166,7 @@ public abstract class BasicGeneration {
             // frame.setLocationRelativeTo(null); // center the application window
             frame.setSize(CANVAS_SIZE, CANVAS_SIZE);
             frame.setVisible(true);
+
             paintComponent(frame.getGraphics());
         }
 

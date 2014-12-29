@@ -1,8 +1,15 @@
 package me.reckter;
 
 import me.reckter.Generation.BasicGeneration;
+import me.reckter.Generation.Gray;
+import me.reckter.Generation.Picture.ColorSort;
 import me.reckter.Generation.Picture.OpenCLSort;
+import me.reckter.Generation.Picture.PictureRandomSort;
 import org.jocl.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import static org.jocl.CL.*;
 
@@ -17,13 +24,25 @@ public class allRGBmain {
     public static void main(String[] args) {
 
         Log.setConsoleLevel(Log.LogLevel.DEBUG);
+        Log.setShowTimeSinceStart(true);
+
         Util.printMemory();
         long time = System.currentTimeMillis();
         Util.c_log("startup");
-        BasicGeneration generation = new OpenCLSort("jungle.jpg");
+        BasicGeneration generation = new ColorSort("original.jpg");
         Util.printMemory();
         Util.c_log("using "+ generation.getClass().getCanonicalName());
+
+        new Thread(() -> {
+            new BufferedReader(new InputStreamReader(System.in)).lines().forEach((line) -> {
+                if(line.equals("save")) {
+                    generation.save();
+                }
+            });
+        }).start();
+
         generation.render();
+
         Util.printMemory();
         generation.writePicture();
         Util.c_log("it took " + ((System.currentTimeMillis() - time) / 1000) + "s to compute this image");

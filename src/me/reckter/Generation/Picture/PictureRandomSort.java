@@ -1,7 +1,10 @@
 package me.reckter.Generation.Picture;
 
+import me.reckter.Log;
 import me.reckter.Util;
 
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Stream;
 
 /**
@@ -14,7 +17,9 @@ import java.util.stream.Stream;
 public class PictureRandomSort extends BasicPicture {
     protected static final int SWITCH_PIXEL_BARRIER = 0;
 
-    public static final int SCALE = 4;
+    public static final int SCALE = 1;
+
+    private Queue<SwitchPixel> pixelToSwitch = new ArrayBlockingQueue<SwitchPixel>(SIZE * SIZE);
 
     public PictureRandomSort(String file) {
         super(file);
@@ -29,41 +34,60 @@ public class PictureRandomSort extends BasicPicture {
 
 
         long startTime = System.currentTimeMillis();
-        int k = 0;
 
-        int maxIter = SIZE / 2;
+
+        new Thread(() -> {
+            while(true) {
+                if(!pixelToSwitch.isEmpty()) {
+                    SwitchPixel point = pixelToSwitch.remove();
+                    switchPixel(point.points[0],point.points[1],point.points[2],point.points[3]);
+                }
+            }
+        }).start();
+
+        int maxStream = SIZE * SIZE;
+        int maxIter = SIZE;
+
+
         for(int i = 0; i < maxIter; i++) {
-            float percent =  (((float) i / (float)maxIter) * 100f);
+            while (isSaving) { Thread.yield();}
 
-            Util.c_log( percent+ "%(ETA: " + (((float)(System.currentTimeMillis() - startTime) / percent) * (100f - percent)) / 1000f + "s) : " + calculateFittnes());
-            for(int j = 0; j < SIZE; j++) {
+            float percent = (((float) i / (float) maxIter) * 100f);
+            Log.info("[" + i + "/" + maxIter + "]" + percent + "%(ETA: " + (((float) (System.currentTimeMillis() - startTime) / percent) * (100f - percent)) / 1000f + "s) : " + calculateFittnes());
 
-               Stream.iterate(0, n -> n + 1).limit(SIZE).parallel().map(ignored -> {
-                   int x1 = random.nextInt(SIZE);
-                   int y1 = random.nextInt(SIZE);
+            Stream.iterate(0, n -> n + 1).limit(maxStream).parallel().map(ignored -> {
+                int x1 = random.nextInt(SIZE);
+                int y1 = random.nextInt(SIZE);
 
-                   int x2 = random.nextInt(SIZE);
-                   int y2 = random.nextInt(SIZE);
-                   int ret[] = {x1, y1, x2, y2};
-                   return ret;
-               }).forEach(point -> {
-                   if (isChangedBetter(point[0], point[1], point[2], point[3])) {
-
-                       byte tmpR = pixel[point[0]][point[1]][R];
-                       byte tmpG = pixel[point[0]][point[1]][G];
-                       byte tmpB = pixel[point[0]][point[1]][B];
-
-                       pixel[point[0]][point[1]][R] = pixel[point[2]][point[3]][R];
-                       pixel[point[0]][point[1]][G] = pixel[point[2]][point[3]][G];
-                       pixel[point[0]][point[1]][B] = pixel[point[2]][point[3]][B];
-
-                       pixel[point[2]][point[3]][R] = tmpR;
-                       pixel[point[2]][point[3]][G] = tmpG;
-                       pixel[point[2]][point[3]][B] = tmpB;
-                   }
-               });
-           }
+                int x2 = random.nextInt(SIZE);
+                int y2 = random.nextInt(SIZE);
+                int ret[] = {x1, y1, x2, y2};
+                return ret;
+            }).forEach(point -> {
+                if (isChangedBetter(point[0], point[1], point[2], point[3])) {
+                    pixelToSwitch.add(new SwitchPixel(point));
+                }
+            });
         }
+    }
+    
+    protected void switchPixel(int x1, int y1, int x2, int y2) {
+        while (isSaving) {Thread.yield();};
+        if( x1 == x2 && y1 == y2 ) {
+            return;
+        }
+        byte tmpR = pixel[x1][y1][R];
+        byte tmpG = pixel[x1][y1][G];
+        byte tmpB = pixel[x1][y1][B];
+
+        pixel[x1][y1][R] = pixel[x2][y2][R];
+        pixel[x1][y1][G] = pixel[x2][y2][G];
+        pixel[x1][y1][B] = pixel[x2][y2][B];
+
+        pixel[x2][y2][R] = tmpR;
+        pixel[x2][y2][G] = tmpG;
+        pixel[x2][y2][B] = tmpB;
+        
     }
 
     protected long calculateFittnes() {
@@ -178,7 +202,15 @@ public class PictureRandomSort extends BasicPicture {
         int difg = pixel[x1][y1][G] - pixelShould[allign(x2) / SCALE][allign(y2) / SCALE][G];
         int difb = pixel[x1][y1][B] - pixelShould[allign(x2) / SCALE][allign(y2) / SCALE][B];
 
-        return difr * difr + difg * difg + difb * difb;
+        return Math.abs(difr) * Math.abs(difg) *  Math.abs(difb);
     }
 
+    private class SwitchPixel {
+
+        int[] points;
+
+        public SwitchPixel(int[] points) {
+            this.points = points;
+        }
+    }
 }
