@@ -20,205 +20,205 @@ import java.util.Scanner;
  */
 public abstract class BasicGeneration {
 
-    public static final int SIZE = 4096;
+	public static final int SIZE = 4096;
 
-    public static final int CANVAS_SIZE = 512;
-    public static final int FACTOR = SIZE / CANVAS_SIZE;
-
-
-    public static final int COLORS = 256;
-
-    public static final int R = 0;
-    public static final int G = 1;
-    public static final int B = 2;
-
-    public static final int X = 0;
-    public static final int Y = 1;
-    public Thread showThread;
-
-    private BufferedImage bi;
-    private Graphics graphics;
-
-    public static Random random = new Random();
-
-    protected byte[][][] pixel;
-    public boolean isSaving = false;
+	public static final int CANVAS_SIZE = 512;
+	public static final int FACTOR = SIZE / CANVAS_SIZE;
 
 
-    public BasicGeneration() {
-        Log.info("allocationg RAM...");
-        pixel = new byte[SIZE][SIZE][3];
-        Log.info("done");
+	public static final int COLORS = 256;
 
-        showThread = new Thread(new ShowThread());
-        showThread.start();
+	public static final int R = 0;
+	public static final int G = 1;
+	public static final int B = 2;
 
-	    Util.c_log("init from BasicGeneration done.");
-    }
+	public static final int X = 0;
+	public static final int Y = 1;
+	public Thread showThread;
 
+	private BufferedImage bi;
+	private Graphics graphics;
 
-    abstract public void render();
+	public static Random random = new Random();
 
-
-    public void writePicture() {
-        isSaving = true;
-
-        Log.info("checking image");
-
-        int colors[][][] = new int[COLORS][COLORS][COLORS];
-
-        for(int x = 0; x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-
-                colors[byteToColor(pixel[y][x][R])][byteToColor(pixel[y][x][G])][byteToColor(pixel[y][x][B])]++;
-            }
-        }
-
-        int errors = 0;
-        StringBuilder errorMessage = new StringBuilder("");
-        for(int r = 0; r < COLORS; r++) {
-            for(int g = 0; g < COLORS; g++) {
-                for(int b = 0; b < COLORS; b++) {
-                    if(colors[r][g][b] != 1 ) {
-                        errors++;
-                        //errorMessage.append("color (").append(r).append(", ").append(g).append( ", ").append(b).append(") exists ").append(colors[r][g][b]).append(" times.\n");
-                    }
-                }
-            }
-        }
-
-        if(errors == 0) {
-            Log.info("picture validated.");
-        } else {
-            Log.info("picture faied: " + errors + " errors");
-            Log.info(errorMessage.toString());
-        }
-
-	    bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-	    graphics = bi.getGraphics();
-
-        int r,g,b;
-        Util.c_log("painting Image");
-        for(int x = 0; x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-
-                r = pixel[y][x][R];
-                g = pixel[y][x][G];
-                b = pixel[y][x][B];
-
-                r = r >= 0 ? r : 127 - r;
-                g = g >= 0 ? g : 127 - g;
-                b = b >= 0 ? b : 127 - b;
-
-                graphics.setColor(new Color(r, g, b));
-                graphics.drawLine(x, y, x, y);
-            }
-        }
-
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader("pictures.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        Scanner in = new Scanner(br);
-
-        int numPictures = 0;
-        numPictures = Integer.parseInt(in.next()) + 1;
-
-        try{
-            PrintWriter pWriter = new PrintWriter(new FileWriter("pictures.txt"));
-            pWriter.flush();
-
-            pWriter.println(numPictures);
-            pWriter.flush();
-        }catch(IOException ioe){
-            ioe.printStackTrace();
-        }
-
-        Util.c_log("saving Image '" + numPictures + ".png'");
-        try {
-            ImageIO.write(bi, "PNG", new File("pictures/" + numPictures + ".png"));
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        Util.c_log("finished.");
-        isSaving = false;
-    }
-
-    private int byteToColor(byte b) {
-        return b >= 0 ? b : 127 - b;
-    }
-
-    public void save() {
-        writePicture();
-    }
-
-    public class ShowThread extends JPanel implements Runnable{
+	protected byte[][][] pixel;
+	public boolean isSaving = false;
 
 
-        public void run() {
-            Util.c_log("started ShowThread");
-            JFrame frame = new JFrame("allRGB");
-            // frame.setContentPane(new SwingTemplateJPanel());
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.pack();             // "this" JFrame packs its components
-            // frame.setLocationRelativeTo(null); // center the application window
-            frame.setSize(CANVAS_SIZE, CANVAS_SIZE);
-            frame.setVisible(true);
+	public BasicGeneration() {
+		Log.info("allocationg RAM...");
+		pixel = new byte[SIZE][SIZE][3];
+		Log.info("done");
 
-            paintComponent(frame.getGraphics());
-        }
+		showThread = new Thread(new ShowThread());
+		showThread.start();
+
+		Util.c_log("init from BasicGeneration done.");
+	}
 
 
-        public void paintComponent(Graphics graphics) {
-            setBackground(Color.BLACK);
-            super.paintComponent(graphics);  // paint background
-
-            int r,g,b;
-            int rTMP,gTMP,bTMP;
-
-            while(true) {
-                try {
-                    Thread.sleep(0);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-                for(int x = 0; x < CANVAS_SIZE; x ++) {
-                    for(int y = 0; y < CANVAS_SIZE; y++) {
-                        r = 0;
-                        g = 0;
-                        b = 0;
-                        for(int xi = 0; xi < FACTOR; xi++) {
-                            for(int yi = 0; yi < FACTOR; yi++) {
-                                rTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][R];
-                                gTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][G];
-                                bTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][B];
+	abstract public void render();
 
 
-                                rTMP = rTMP >= 0 ? rTMP : 127 - rTMP;
-                                gTMP = gTMP >= 0 ? gTMP : 127 - gTMP;
-                                bTMP = bTMP >= 0 ? bTMP : 127 - bTMP;
+	public void writePicture() {
+		isSaving = true;
 
-                                r += rTMP;
-                                g += gTMP;
-                                b += bTMP;
-                            }
-                        }
-                        r /= FACTOR * FACTOR;
-                        g /= FACTOR * FACTOR;
-                        b /= FACTOR * FACTOR;
+		Log.info("checking image");
 
-                        if(r < 256 && r >= 0 && g < 256 && g >= 0 && b < 256 && b >= 0){
-                            graphics.setColor(new Color(r, g, b ));
-                            graphics.drawLine(x, y, x, y);
-                        } else {
-                            Util.c_log("The pixel (" + x + "|" + y + ") is wrong: " + r + "," + g + "," + b);
-                        }
+		int colors[][][] = new int[COLORS][COLORS][COLORS];
 
-                    }
-                }
-            }
-        }
-    }
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+
+				colors[byteToColor(pixel[y][x][R])][byteToColor(pixel[y][x][G])][byteToColor(pixel[y][x][B])]++;
+			}
+		}
+
+		int errors = 0;
+		StringBuilder errorMessage = new StringBuilder("");
+		for (int r = 0; r < COLORS; r++) {
+			for (int g = 0; g < COLORS; g++) {
+				for (int b = 0; b < COLORS; b++) {
+					if (colors[r][g][b] != 1) {
+						errors++;
+						//errorMessage.append("color (").append(r).append(", ").append(g).append( ", ").append(b).append(") exists ").append(colors[r][g][b]).append(" times.\n");
+					}
+				}
+			}
+		}
+
+		if (errors == 0) {
+			Log.info("picture validated.");
+		} else {
+			Log.info("picture faied: " + errors + " errors");
+			Log.info(errorMessage.toString());
+		}
+
+		bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+		graphics = bi.getGraphics();
+
+		int r, g, b;
+		Util.c_log("painting Image");
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+
+				r = pixel[y][x][R];
+				g = pixel[y][x][G];
+				b = pixel[y][x][B];
+
+				r = r >= 0 ? r : 127 - r;
+				g = g >= 0 ? g : 127 - g;
+				b = b >= 0 ? b : 127 - b;
+
+				graphics.setColor(new Color(r, g, b));
+				graphics.drawLine(x, y, x, y);
+			}
+		}
+
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader("pictures.txt"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+		}
+		Scanner in = new Scanner(br);
+
+		int numPictures = 0;
+		numPictures = Integer.parseInt(in.next()) + 1;
+
+		try {
+			PrintWriter pWriter = new PrintWriter(new FileWriter("pictures.txt"));
+			pWriter.flush();
+
+			pWriter.println(numPictures);
+			pWriter.flush();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		Util.c_log("saving Image '" + numPictures + ".png'");
+		try {
+			ImageIO.write(bi, "PNG", new File("pictures/" + numPictures + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+		}
+		Util.c_log("finished.");
+		isSaving = false;
+	}
+
+	private int byteToColor(byte b) {
+		return b >= 0 ? b : 127 - b;
+	}
+
+	public void save() {
+		writePicture();
+	}
+
+	public class ShowThread extends JPanel implements Runnable {
+
+
+		public void run() {
+			Util.c_log("started ShowThread");
+			JFrame frame = new JFrame("allRGB");
+			// frame.setContentPane(new SwingTemplateJPanel());
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.pack();             // "this" JFrame packs its components
+			// frame.setLocationRelativeTo(null); // center the application window
+			frame.setSize(CANVAS_SIZE, CANVAS_SIZE);
+			frame.setVisible(true);
+
+			paintComponent(frame.getGraphics());
+		}
+
+
+		public void paintComponent(Graphics graphics) {
+			setBackground(Color.BLACK);
+			super.paintComponent(graphics);  // paint background
+
+			int r, g, b;
+			int rTMP, gTMP, bTMP;
+
+			while (true) {
+				try {
+					Thread.sleep(0);
+				} catch (InterruptedException e) {
+					e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+				}
+				for (int x = 0; x < CANVAS_SIZE; x++) {
+					for (int y = 0; y < CANVAS_SIZE; y++) {
+						r = 0;
+						g = 0;
+						b = 0;
+						for (int xi = 0; xi < FACTOR; xi++) {
+							for (int yi = 0; yi < FACTOR; yi++) {
+								rTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][R];
+								gTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][G];
+								bTMP = pixel[x * FACTOR + xi][y * FACTOR + yi][B];
+
+
+								rTMP = rTMP >= 0 ? rTMP : 127 - rTMP;
+								gTMP = gTMP >= 0 ? gTMP : 127 - gTMP;
+								bTMP = bTMP >= 0 ? bTMP : 127 - bTMP;
+
+								r += rTMP;
+								g += gTMP;
+								b += bTMP;
+							}
+						}
+						r /= FACTOR * FACTOR;
+						g /= FACTOR * FACTOR;
+						b /= FACTOR * FACTOR;
+
+						if (r < 256 && r >= 0 && g < 256 && g >= 0 && b < 256 && b >= 0) {
+							graphics.setColor(new Color(r, g, b));
+							graphics.drawLine(x, y, x, y);
+						} else {
+							Util.c_log("The pixel (" + x + "|" + y + ") is wrong: " + r + "," + g + "," + b);
+						}
+
+					}
+				}
+			}
+		}
+	}
 }

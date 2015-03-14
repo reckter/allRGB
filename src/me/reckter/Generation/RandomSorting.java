@@ -20,18 +20,18 @@ public class RandomSorting extends BasicGeneration {
 		int tileSize = 128;
 
 
-		for(int xTile = 0; xTile < SIZE; xTile += tileSize) {
-			if((float) xTile / (float) (SIZE) * 100 > k + 10) {
+		for (int xTile = 0; xTile < SIZE; xTile += tileSize) {
+			if ((float) xTile / (float) (SIZE) * 100 > k + 10) {
 				k += 10;
 				Util.c_log(k + "%");
 			}
-			for(int yTile = 0; yTile < SIZE; yTile += tileSize) {
-				for(int xMiniTile1 = xTile; xMiniTile1 < xTile + tileSize; xMiniTile1++) {
-					for(int yMiniTile1 = yTile; yMiniTile1 < yTile + tileSize; yMiniTile1++) {
-						for(int xMiniTile2 = xTile; xMiniTile2 < xTile + tileSize - 1; xMiniTile2++) {
-							for(int yMiniTile2 = yTile; yMiniTile2 < yTile + tileSize - 1; yMiniTile2++) {
+			for (int yTile = 0; yTile < SIZE; yTile += tileSize) {
+				for (int xMiniTile1 = xTile; xMiniTile1 < xTile + tileSize; xMiniTile1++) {
+					for (int yMiniTile1 = yTile; yMiniTile1 < yTile + tileSize; yMiniTile1++) {
+						for (int xMiniTile2 = xTile; xMiniTile2 < xTile + tileSize - 1; xMiniTile2++) {
+							for (int yMiniTile2 = yTile; yMiniTile2 < yTile + tileSize - 1; yMiniTile2++) {
 
-								if(getNumberOfColor(pixel[xMiniTile2][yMiniTile2]) > getNumberOfColor(pixel[xMiniTile2 + 1][yMiniTile2 + 1])) {
+								if (getNumberOfColor(pixel[xMiniTile2][yMiniTile2]) > getNumberOfColor(pixel[xMiniTile2 + 1][yMiniTile2 + 1])) {
 									byte[] tmp = pixel[xMiniTile2][yMiniTile2];
 									pixel[xMiniTile2][yMiniTile2] = pixel[xMiniTile2 + 1][yMiniTile2 + 1];
 									pixel[xMiniTile2 + 1][yMiniTile2 + 1] = tmp;

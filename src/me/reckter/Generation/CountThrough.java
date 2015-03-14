@@ -11,14 +11,14 @@ import me.reckter.Util;
  */
 public class CountThrough extends BasicGeneration {
 
-    @Override
-    public void render() {
-        for(int x = 0; x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-                pixel[x][y][R] = (byte) (((x * SIZE) + y) % 256);
-                pixel[x][y][G] = (byte) ((((x * SIZE) + y) / 256) % 256);
-                pixel[x][y][B] = (byte) ((((x * SIZE) + y) / 256 / 256));
-            }
-        }
-    }
+	@Override
+	public void render() {
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+				pixel[x][y][R] = (byte) (((x * SIZE) + y) % 256);
+				pixel[x][y][G] = (byte) ((((x * SIZE) + y) / 256) % 256);
+				pixel[x][y][B] = (byte) ((((x * SIZE) + y) / 256 / 256));
+			}
+		}
+	}
 }

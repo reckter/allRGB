@@ -3,6 +3,8 @@
     <output-path>$PROJECT_DIR$/out/artifacts/allRGB_jar</output-path>
     <root id="archive" name="allRGB.jar">
       <element id="module-output" name="allRGB" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Util/out/Util.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/JOCL-0.1.9.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-jna/1.0.0-RC3/javacl-core-jna-1.0.0-RC3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-jna/1.0.0-RC3/opencl4java-jna-1.0.0-RC3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/nativelibs4java/jnaerator-runtime/0.11/jnaerator-runtime-0.11.jar" path-in-jar="/" />
@@ -10,8 +12,6 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/nativelibs4java/jna-jnaerator/0.11/jna-jnaerator-0.11.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/java/dev/jna/jna/3.4.0/jna-3.4.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/nativelibs4java/nativelibs4java-utils/1.5/nativelibs4java-utils-1.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../Util/out/util/Util.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/src/JOCL-0.1.9.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

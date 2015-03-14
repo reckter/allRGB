@@ -11,22 +11,22 @@ import me.reckter.Generation.BasicGeneration;
  */
 public class Scale extends BasicGeneration {
 
-    @Override
-    public void render() {
-        for(int xTile = 0; xTile < 4096; xTile += 256) {
-            for(int yTile = 0; yTile < 4096; yTile += 256) {
-                for(int xMiniTile = 0; xMiniTile < 256; xMiniTile += 4) {
-                    for(int yMiniTile = 0; yMiniTile < 256; yMiniTile += 4) {
-                        for(int x = 0; x < 4; x++) {
-                            for(int y = 0; y < 4; y++) {
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][R] = (byte)( (xMiniTile / 4) + x * 32);
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][G] = (byte)( (yMiniTile / 4) + y * 32);
-                                pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][B] = (byte)( (xTile / 256) + (yTile / 256) * 16) ;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+	@Override
+	public void render() {
+		for (int xTile = 0; xTile < 4096; xTile += 256) {
+			for (int yTile = 0; yTile < 4096; yTile += 256) {
+				for (int xMiniTile = 0; xMiniTile < 256; xMiniTile += 4) {
+					for (int yMiniTile = 0; yMiniTile < 256; yMiniTile += 4) {
+						for (int x = 0; x < 4; x++) {
+							for (int y = 0; y < 4; y++) {
+								pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][R] = (byte) ((xMiniTile / 4) + x * 32);
+								pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][G] = (byte) ((yMiniTile / 4) + y * 32);
+								pixel[xTile + xMiniTile + x][yTile + yMiniTile + y][B] = (byte) ((xTile / 256) + (yTile / 256) * 16);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

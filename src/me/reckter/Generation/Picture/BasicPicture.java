@@ -18,61 +18,61 @@ import java.io.IOException;
  */
 public class BasicPicture extends BasicGeneration {
 
-    protected byte[][][] pixelShould;
-    protected int height;
-    protected int width;
+	protected byte[][][] pixelShould;
+	protected int height;
+	protected int width;
 
 
-    public BasicPicture(String file) {
-        super();
-        readImage(file);
-    }
+	public BasicPicture(String file) {
+		super();
+		readImage(file);
+	}
 
-    private void readImage(String file) {
-        Util.c_log("reading " + file);
+	private void readImage(String file) {
+		Util.c_log("reading " + file);
 
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new File(file));
-        } catch (IOException e) {
-            Util.c_log("ERROR: " + e.toString());
-        }
+		BufferedImage img = null;
+		try {
+			img = ImageIO.read(new File(file));
+		} catch (IOException e) {
+			Util.c_log("ERROR: " + e.toString());
+		}
 
-        height = img.getHeight();
-        width = img.getWidth();
+		height = img.getHeight();
+		width = img.getWidth();
 
 
-        pixelShould = new byte[height][width][3];
-        int[] result = new int[height * width * 3 + 1];
+		pixelShould = new byte[height][width][3];
+		int[] result = new int[height * width * 3 + 1];
 
-       // img.getData().getPixels(0, 0, height, width, result);
-        DataBuffer buffer = img.getData().getDataBuffer();
-        short k = 0;
+		// img.getData().getPixels(0, 0, height, width, result);
+		DataBuffer buffer = img.getData().getDataBuffer();
+		short k = 0;
 
-        for(int i = 0; i < height * width; i++) {
-            pixelShould[i % height][(int) ((float) i / (float) height)][R] = (byte) buffer.getElem(3 * i + R);
-            pixelShould[i % height][(int) ((float) i / (float) height)][G] = (byte) buffer.getElem(3 * i + G);
-            pixelShould[i % height][(int) ((float) i / (float) height)][B] = (byte) buffer.getElem(3 * i + B);
-            //Log.debug("reading pixel: (" + i % height + "|" + (int) ((float) i / (float) height) + "): [" + buffer.getElem(3 * i + R) + "|" + buffer.getElem(3 * i + G) + "|" + buffer.getElem(3 * i + B) + "]");
+		for (int i = 0; i < height * width; i++) {
+			pixelShould[i % height][(int) ((float) i / (float) height)][R] = (byte) buffer.getElem(3 * i + R);
+			pixelShould[i % height][(int) ((float) i / (float) height)][G] = (byte) buffer.getElem(3 * i + G);
+			pixelShould[i % height][(int) ((float) i / (float) height)][B] = (byte) buffer.getElem(3 * i + B);
+			//Log.debug("reading pixel: (" + i % height + "|" + (int) ((float) i / (float) height) + "): [" + buffer.getElem(3 * i + R) + "|" + buffer.getElem(3 * i + G) + "|" + buffer.getElem(3 * i + B) + "]");
 
-            if((float) i / (float) (height * width) * 100 > k + 10) {
-                k += 10;
-                Util.c_log(k + "%");
-            }
-        }
-        img = null;
-        Util.c_log("finished.");
-    }
+			if ((float) i / (float) (height * width) * 100 > k + 10) {
+				k += 10;
+				Util.c_log(k + "%");
+			}
+		}
+		img = null;
+		Util.c_log("finished.");
+	}
 
-    @Override
-    public void render(){
-        for(int x = 0;x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-                pixel[x][y][R] = pixelShould[x][y][R];
-                pixel[x][y][G] = pixelShould[x][y][G];
-                pixel[x][y][B] = pixelShould[x][y][B];
-            }
-        }
-    }
+	@Override
+	public void render() {
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+				pixel[x][y][R] = pixelShould[x][y][R];
+				pixel[x][y][G] = pixelShould[x][y][G];
+				pixel[x][y][B] = pixelShould[x][y][B];
+			}
+		}
+	}
 
 }

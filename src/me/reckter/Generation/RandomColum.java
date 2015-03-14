@@ -7,25 +7,25 @@ package me.reckter.Generation;
  * Time: 3:41 AM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomColum extends BasicGeneration{
+public class RandomColum extends BasicGeneration {
 
-    @Override
-    public void render() {
-        boolean[] color;
-        int random;
+	@Override
+	public void render() {
+		boolean[] color;
+		int random;
 
-        color = new boolean[SIZE * SIZE];
-        for(int x = 0; x < SIZE; x++) {
-            for(int y = 0; y < SIZE; y++) {
-                random = (int) (Math.random() * SIZE);
-                while(color[x * SIZE + random]) {
-                    random = (int) (Math.random() * SIZE);
-                }
-                color[x * SIZE + random] = true;
-                pixel[x][y][R] = (byte) ((x * SIZE + random) % 256);
-                pixel[x][y][G] = (byte) (((x * SIZE + random) / 256) % 256);
-                pixel[x][y][B] = (byte) (((x * SIZE + random) / 256 / 256));
-            }
-        }
-    }
+		color = new boolean[SIZE * SIZE];
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+				random = (int) (Math.random() * SIZE);
+				while (color[x * SIZE + random]) {
+					random = (int) (Math.random() * SIZE);
+				}
+				color[x * SIZE + random] = true;
+				pixel[x][y][R] = (byte) ((x * SIZE + random) % 256);
+				pixel[x][y][G] = (byte) (((x * SIZE + random) / 256) % 256);
+				pixel[x][y][B] = (byte) (((x * SIZE + random) / 256 / 256));
+			}
+		}
+	}
 }
